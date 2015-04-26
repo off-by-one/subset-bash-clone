@@ -1,0 +1,49 @@
+This is a skeleton for CS 111 Lab 1.
+
+Replace this README file with notes on your implementation.
+Mentions any special features or limitations.
+
+Lab 1a
+
+  The first part of the lab consists of a two-stage lexer and a parser. The
+  first stage of the lexer separates the string of characters into individual
+  text tokens. The second stage takes the text tokens and groups/classifies
+  them into meaningful bash tokens (groups words into simple commands). The
+  parser then takes these tokens and creates a command tree out of them.
+
+Lab 1b
+
+  The execute portion of the lab consts of the recursive_execute function, and
+  handlers for every type of command (pipe, if, while, etc.). All of these
+  take two file descriptors as input, for inheriting input and output
+  redirection in a nested command structure.
+
+Lab 1c
+
+  I implemented this by opening the file with O_APPEND. In the initial
+  execute_command call, I do fdopen to create a file stream, which I write to
+  using fprintf to format the numbers. I avoid race conditions by running
+  flock on the file, and unlocking it after the write is done and fflush'd.
+
+  To measure the finish time, I use CLOCK_REALTIME. To measure time intervals,
+  I use CLOCK_MONOTONIC, because it cannot be reset while the operating system
+  is running, so it will give accurate times. Both are printed to within a
+  nanosecond, because clock_getres says that's the accuracy (the linux servers
+  appear to have a high-precision clock).
+
+The first column may be in decreasing order, because it uses the REALTIME clock,
+  which can be reset in software betweent the times two different commands
+  finish running.
+
+The second column can never be less than the sum of the third and fourth,
+  because between the user time and system time, all the processing time of
+  the program is accounted for. The total time it spends doing everything is the
+  sum of the two, and the total time accounts for all the other processes
+  running.
+
+The third and fourth columns can never be negative because the CPU cannot
+  work a negative amount of time. The second cannot be negative in my
+  implementation, because I use the MONOTONIC clock to measure time
+  intervals, and that clock cannot be reset. If someone were using the REALTIME
+  clock, the second time could be negative, if it were set to an earlier time
+  while the program was running.
